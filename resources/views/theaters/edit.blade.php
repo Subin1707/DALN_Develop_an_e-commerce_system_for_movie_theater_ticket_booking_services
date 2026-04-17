@@ -1,0 +1,21 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>✏️ Sửa thông tin rạp</h1>
+
+    @php
+        $updateRoute = auth()->check() && auth()->user()->role === 'admin'
+            ? route('admin.theaters.update', $theater)
+            : route('theaters.update', $theater);
+    @endphp
+
+    <form action="{{ $updateRoute }}" method="POST">
+        @csrf
+        @method('PUT')
+        @include('theaters._form')
+    </form>
+
+    <a href="{{ route('theaters.index') }}" class="btn btn-secondary mt-3">⬅️ Quay lại</a>
+</div>
+@endsection

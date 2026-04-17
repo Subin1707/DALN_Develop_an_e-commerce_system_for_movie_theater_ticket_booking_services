@@ -1,0 +1,19 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>➕ Thêm rạp chiếu mới</h1>
+
+    @php
+        $storeRoute = auth()->check() && auth()->user()->role === 'admin'
+            ? route('admin.theaters.store')
+            : route('theaters.store');
+    @endphp
+
+    <form action="{{ $storeRoute }}" method="POST">
+        @include('theaters._form')
+    </form>
+
+    <a href="{{ route('theaters.index') }}" class="btn btn-secondary mt-3">⬅️ Quay lại</a>
+</div>
+@endsection
