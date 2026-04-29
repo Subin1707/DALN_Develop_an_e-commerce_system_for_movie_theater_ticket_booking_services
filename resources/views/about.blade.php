@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giới thiệu bản thân - Nguyễn Mạnh Quyền</title>
+  <title>Giới thiệu bản thân - Lê Thái Sơn</title>
   <style>
     body {
       margin: 0;
@@ -56,11 +56,10 @@
 </head>
 <body>
   <div class="card">
-    <h1>Nguyễn Mạnh Quyền</h1>
+    <h1>Lê Thái Sơn</h1>
     
     
     <div class="info">
-      <div>📌 Mã SV: 23010198</div>
       <div>🎓 Ngành: CNTT</div>
     </div>
   </div>
