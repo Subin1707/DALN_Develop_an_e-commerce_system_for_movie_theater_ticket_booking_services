@@ -48,7 +48,7 @@ class BookingSeeder extends Seeder
                     'total_price'    => $showtime->price * $seatCount,
 
                     // Chuyển khoản phổ biến hơn
-                    'payment_method' => collect(['transfer', 'transfer', 'cash'])->random(),
+                    'payment_method' => collect(['transfer', 'transfer', 'online', 'cash'])->random(),
 
                     // Vé đã xác nhận nhiều hơn
                     'status'         => collect(['confirmed', 'confirmed', 'pending'])->random(),

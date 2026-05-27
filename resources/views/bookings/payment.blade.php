@@ -88,7 +88,7 @@
                 </label>
             </div>
 
-            <div class="form-check">
+            <div class="form-check mb-2">
                 <input class="form-check-input"
                        type="radio"
                        name="payment_method"
@@ -98,6 +98,26 @@
                     🏦 Chuyển khoản / Ví điện tử
                 </label>
             </div>
+
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="payment_method"
+                       value="online"
+                       id="pay_online">
+                <label class="form-check-label" for="pay_online">
+                    Thanh toan online
+                </label>
+            </div>
+
+            <div id="onlinePaymentBox" class="alert alert-info mt-3 d-none">
+                <strong>Thanh toan online:</strong>
+                Quet ma QR ngan hang hoac vi dien tu, sau do bam nut xac nhan. Don demo se duoc xac nhan ngay.
+                <div class="mt-2 small">
+                    Noi dung chuyen khoan:
+                    <strong>QHCINEMA-{{ $showtime->id }}-{{ implode('', $seatArray) }}</strong>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -106,7 +126,7 @@
             ← Quay lại chọn ghế
         </a>
 
-        <button type="submit" class="btn btn-success">
+        <button type="submit" class="btn btn-success" id="submitPaymentBtn">
             ✅ Xác nhận & Đặt vé
         </button>
     </div>
@@ -133,9 +153,34 @@
 
     // Khi submit form thì dừng timer
     const form = document.getElementById('paymentForm');
+    const submitBtn = document.getElementById('submitPaymentBtn');
+    const onlineBox = document.getElementById('onlinePaymentBox');
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+
+    paymentMethods.forEach((input) => {
+        input.addEventListener('change', () => {
+            if (onlineBox) {
+                onlineBox.classList.toggle('d-none', input.value !== 'online' || !input.checked);
+            }
+        });
+    });
+
     if (form) {
-        form.addEventListener('submit', () => {
+        let submitted = false;
+
+        form.addEventListener('submit', (event) => {
+            if (submitted) {
+                event.preventDefault();
+                return;
+            }
+
+            submitted = true;
             clearInterval(timer);
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Dang xu ly...';
+            }
         });
     }
 </script>

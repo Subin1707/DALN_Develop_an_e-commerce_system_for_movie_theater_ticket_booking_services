@@ -4,6 +4,10 @@
 
 @php
     $user = Auth::user();
+    $monthlyRevenueLabels = json_encode($monthlyRevenue['labels']);
+    $monthlyRevenueData = json_encode($monthlyRevenue['data']);
+    $movieRevenueLabels = json_encode($movieRevenue['labels']);
+    $movieRevenueData = json_encode($movieRevenue['data']);
 @endphp
 
 @if($user && in_array($user->role, ['admin', 'staff']))
@@ -44,18 +48,12 @@
         </div>
     </div>
 </div>
-
-{{-- Chart.js --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-@verbatim
 <script type="text/javascript">
-@endverbatim
-    const monthlyLabels = {!! json_encode($monthlyRevenue['labels']) !!};
-    const monthlyData   = {!! json_encode($monthlyRevenue['data']) !!};
+    const monthlyLabels = {!! $monthlyRevenueLabels !!};
+    const monthlyData   = {!! $monthlyRevenueData !!};
 
-    const movieLabels = {!! json_encode($movieRevenue['labels']) !!};
-    const movieData   = {!! json_encode($movieRevenue['data']) !!};
+    const movieLabels = {!! $movieRevenueLabels !!};
+    const movieData   = {!! $movieRevenueData !!};
 
     const monthlyCanvas = document.getElementById('monthlyRevenueChart');
     if (monthlyCanvas) {
@@ -89,6 +87,8 @@
                 }]
             }
         });
+    }
+</script>
     }
 @verbatim
 </script>

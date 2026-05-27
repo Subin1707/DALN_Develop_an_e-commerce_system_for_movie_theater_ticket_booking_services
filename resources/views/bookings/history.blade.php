@@ -81,6 +81,10 @@
                             <span class="badge bg-info">
                                 🏦 Chuyển khoản
                             </span>
+                        @elseif($booking->payment_method === 'online')
+                            <span class="badge bg-success">
+                                Online
+                            </span>
                         @else
                             <span class="badge bg-secondary">N/A</span>
                         @endif

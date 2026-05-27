@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -90,7 +91,22 @@ class BookingController extends Controller
         $showtime = Showtime::with(['movie', 'room'])
             ->findOrFail($request->showtime_id);
 
-        $seats = array_map('trim', explode(',', $request->seats));
+        abort_if($showtime->start_time < now(), 403);
+
+        $seats = $this->normalizeSeats($request->seats);
+        abort_if(empty($seats), 422, 'Vui long chon it nhat 1 ghe.');
+
+        $invalidSeats = $this->invalidSeats($showtime, $seats);
+        abort_if(!empty($invalidSeats), 422, 'Ghe khong hop le: ' . implode(', ', $invalidSeats));
+
+        $occupiedSeats = $this->occupiedSeatsForShowtime($showtime->id);
+        $duplicatedSeats = array_values(array_intersect($seats, $occupiedSeats));
+        if (!empty($duplicatedSeats)) {
+            return redirect()
+                ->route('bookings.create', $showtime)
+                ->with('error', 'Ghe da duoc dat: ' . implode(', ', $duplicatedSeats) . '. Vui long chon ghe khac.');
+        }
+
         $totalPrice = count($seats) * $showtime->price;
 
         return view('bookings.payment', compact(
@@ -108,21 +124,58 @@ class BookingController extends Controller
         $request->validate([
             'showtime_id'    => 'required|exists:showtimes,id',
             'seats'          => 'required|string',
-            'payment_method' => 'required|in:cash,transfer',
+            'payment_method' => 'required|in:cash,transfer,online',
         ]);
 
         $showtime = Showtime::with('room')->findOrFail($request->showtime_id);
-        $selectedSeats = array_map('trim', explode(',', $request->seats));
+        abort_if($showtime->start_time < now(), 403);
 
-        Booking::create([
-            'user_id'        => Auth::id(),
-            'showtime_id'    => $showtime->id,
-            'room_code'      => $showtime->room->name ?? null,
-            'seats'          => implode(',', $selectedSeats),
-            'total_price'    => count($selectedSeats) * $showtime->price,
-            'payment_method' => $request->payment_method,
-            'status'         => 'pending',
-        ]);
+        $selectedSeats = $this->normalizeSeats($request->seats);
+        abort_if(empty($selectedSeats), 422, 'Vui long chon it nhat 1 ghe.');
+
+        $invalidSeats = $this->invalidSeats($showtime, $selectedSeats);
+        abort_if(!empty($invalidSeats), 422, 'Ghe khong hop le: ' . implode(', ', $invalidSeats));
+
+        $booking = DB::transaction(function () use ($request, $showtime, $selectedSeats) {
+            Showtime::whereKey($showtime->id)->lockForUpdate()->first();
+
+            $occupiedSeats = Booking::where('showtime_id', $showtime->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->lockForUpdate()
+                ->pluck('seats')
+                ->flatMap(fn ($seats) => explode(',', $seats))
+                ->map(fn ($seat) => trim($seat))
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $duplicatedSeats = array_values(array_intersect($selectedSeats, $occupiedSeats));
+            if (!empty($duplicatedSeats)) {
+                return [
+                    'duplicatedSeats' => $duplicatedSeats,
+                ];
+            }
+
+            $isOnlinePayment = $request->payment_method === 'online';
+
+            return Booking::create([
+                'user_id'        => Auth::id(),
+                'showtime_id'    => $showtime->id,
+                'room_code'      => $showtime->room->name ?? null,
+                'seats'          => implode(',', $selectedSeats),
+                'total_price'    => count($selectedSeats) * $showtime->price,
+                'payment_method' => $request->payment_method,
+                'status'         => $isOnlinePayment ? 'confirmed' : 'pending',
+                'confirmed_at'   => $isOnlinePayment ? now() : null,
+            ]);
+        });
+
+        if (is_array($booking) && !empty($booking['duplicatedSeats'])) {
+            return redirect()
+                ->route('bookings.create', $showtime)
+                ->with('error', 'Ghe da duoc dat: ' . implode(', ', $booking['duplicatedSeats']) . '. Vui long chon ghe khac.');
+        }
 
         return redirect()
             ->route('bookings.history')
@@ -157,7 +210,17 @@ class BookingController extends Controller
     {
         abort_if($booking->user_id !== Auth::id(), 403);
 
-        $pdf = Pdf::loadView('bookings.pdf', compact('booking'));
+        $booking->load(['showtime.movie', 'showtime.room']);
+
+        $canShowQr = $booking->status === 'confirmed'
+            && !$booking->checked_in_at
+            && now()->lt($booking->showtime->start_time);
+
+        $qr = $canShowQr
+            ? QrCode::size(150)->generate(route('staff.bookings.scan', $booking->booking_code))
+            : null;
+
+        $pdf = Pdf::loadView('bookings.pdf', compact('booking', 'qr', 'canShowQr'));
 
         return $pdf->download("ticket_{$booking->booking_code}.pdf");
     }
@@ -203,6 +266,13 @@ public function scanQr(string $bookingCode)
     }
 
     /* ✅ CHECK-IN HỢP LỆ */
+    if ($booking->status !== 'confirmed') {
+        return view('bookings.staff.scan-result', [
+            'status'  => 'pending',
+            'message' => 'Ve chua duoc xac nhan thanh toan',
+        ]);
+    }
+
     $booking->update([
         'checked_in_at' => now(),
     ]);
@@ -212,4 +282,37 @@ public function scanQr(string $bookingCode)
         'booking' => $booking,
     ]);
 }
+
+    private function normalizeSeats(string $rawSeats): array
+    {
+        return collect(explode(',', $rawSeats))
+            ->map(fn ($seat) => strtoupper(trim($seat)))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    private function invalidSeats(Showtime $showtime, array $selectedSeats): array
+    {
+        $validSeats = collect($showtime->room->generateSeats());
+
+        return collect($selectedSeats)
+            ->reject(fn ($seat) => $validSeats->contains($seat))
+            ->values()
+            ->toArray();
+    }
+
+    private function occupiedSeatsForShowtime(int $showtimeId): array
+    {
+        return Booking::where('showtime_id', $showtimeId)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->pluck('seats')
+            ->flatMap(fn ($seats) => explode(',', $seats))
+            ->map(fn ($seat) => trim($seat))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 }

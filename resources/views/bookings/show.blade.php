@@ -51,6 +51,8 @@
                 <strong>💳 Thanh toán:</strong>
                 @if($booking->payment_method === 'cash')
                     <span class="badge bg-warning text-dark">💵 Tiền mặt</span>
+                @elseif($booking->payment_method === 'online')
+                    <span class="badge bg-success">Online</span>
                 @else
                     <span class="badge bg-info">🏦 Chuyển khoản</span>
                 @endif
@@ -69,7 +71,7 @@
         </ul>
 
         {{-- ================= QR CODE CHECK-IN ================= --}}
-        @if(now()->lt($booking->showtime->start_time))
+        @if($booking->status === 'confirmed' && now()->lt($booking->showtime->start_time))
             <div class="text-center mb-4">
                 <h5 class="mb-3">🔲 Mã QR Check-in</h5>
 
@@ -103,7 +105,6 @@
                 <form action="{{ route('staff.bookings.confirm', $booking->id) }}"
                       method="POST">
                     @csrf
-                    @method('PATCH')
                     <button class="btn btn-success">
                         ✅ Xác nhận thanh toán
                     </button>

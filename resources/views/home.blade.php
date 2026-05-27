@@ -4,23 +4,44 @@
 
 @section('content')
 
-<section id="home_intro" class="pt-4 pb-5 bg_grey" style="background-color: #0b0b0b;">
+
+<section id="home_intro" class="pt-5 pb-5" style="background: linear-gradient(120deg,#1a1a2e 70%,#e94560 100%); border-radius:0 0 32px 32px; box-shadow: 0 4px 32px 0 rgba(233,69,96,0.10);">
     <div class="container text-light">
-        <div class="row mb-4">
-            <div class="col-md-12 text-center">
-                <div class="trend_11">
-                    <h4 class="mb-3">
-                        <i class="fa fa-film align-middle col_red me-2"></i>
+        <div class="row mb-4 justify-content-center align-items-center">
+            <div class="col-lg-8 col-md-10 col-12 text-center">
+                <div class="p-4 p-md-5 rounded-4 shadow-lg banner-welcome mx-auto" style="background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);">
+                    <h1 class="mb-3 fw-bold" style="font-size:2.5rem;letter-spacing:1px">
+                        <i class="fa fa-film align-middle text-danger me-2"></i>
                         <span class="text-white">Chào mừng đến với</span> 
-                        <span class="col_red">Rạp Chiếu Phim Online</span>
-                    </h4>
-                    <p class="text-secondary fs-5">
+                        <span class="text-danger">Rạp Chiếu Phim Online</span>
+                    </h1>
+                    <p class="text-light fs-5 mb-4">
                         Trải nghiệm điện ảnh đỉnh cao ngay tại nhà – đặt vé nhanh chóng, xem lịch chiếu, 
                         và khám phá những bộ phim hot nhất hôm nay!
                     </p>
+                    <a href="#popular" class="btn btn-lg btn-danger rounded-pill px-5 py-3 fw-bold shadow mt-2 banner-cta">
+                        Khám phá phim hot <i class="fa fa-arrow-down ms-2"></i>
+                    </a>
                 </div>
             </div>
         </div>
+<style>
+    .banner-welcome {
+        border-radius: 32px;
+        box-shadow: 0 8px 32px 0 rgba(233,69,96,0.18);
+        animation: fadeInDown 1.2s;
+    }
+    .banner-cta:hover {
+        background: #fff !important;
+        color: #e94560 !important;
+        border: 2px solid #e94560;
+        transform: scale(1.05);
+    }
+    @keyframes fadeInDown {
+        0% { opacity: 0; transform: translateY(-40px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
         <div class="row text-center popular_1 mt-4">
             <div class="col-md-4 mb-4">
@@ -110,80 +131,114 @@
     </div>
 </section>
 
+
 <section id="popular" class="pt-4 pb-5 bg_grey">
     <div class="container">
-        <div class="row trend_1">
-            <div class="col-md-12">
-                <div class="trend_11">
-                    <h4 class="mb-0"><i class="fa fa-youtube-play align-middle col_red me-1"></i>Trending <span class="col_red">Movies</span></h4>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h2 class="fw-bold mb-0" style="letter-spacing:1px">
+                <i class="fa fa-fire text-danger me-2"></i>Trending <span class="text-danger">Movies</span>
+            </h2>
+        </div>
 
-                </div>
-            </div>
-        </div> 
-    </div>
-    
-
-    <div class="row trend_2 mt-4">
-            <div class="trend_2i row">
-                @forelse ($trendingMovies as $movie)
-                    <div class="col-md-3 col-6 mb-4">
-                        <div class="trend_2im clearfix position-relative">
-                            <div class="trend_2im1 clearfix">
-                                <div class="grid">
-                                    <figure class="effect-jazz mb-0">
-                                        {{-- Nếu có ảnh phim --}}
-                                        @if($movie->poster)
-                                            <a href="{{ route('movies.show', $movie->id) }}">
-                                                <img src="{{ asset($movie->poster) }}" 
-                                                    class="w-100" 
-                                                    alt="{{ $movie->title }}">
-                                            </a>
-                                        @else
-                                            <a href="{{ route('movies.show', $movie->id) }}">
-                                                <img src="{{ asset('img/1.jpg') }}" 
-                                                    class="w-100" 
-                                                    alt="{{ $movie->title }}">
-                                            </a>
-                                        @endif
-                                    </figure>
-                                </div>
-                            </div>
-
-                            {{-- Nút xem trailer hoặc chi tiết --}}
-                            <div class="trend_2im2 clearfix text-center position-absolute w-100 top-0">
-                                <span class="fs-1">
-                                    <a class="col_red" href="{{ route('movies.show', $movie->id) }}">
-                                        <i class="fa fa-youtube-play"></i>
-                                    </a>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="trend_2ilast bg_grey p-3 clearfix text-center">
-                            <h5>
-                                <a class="col_red" href="{{ route('movies.show', $movie->id) }}">
+        <div class="row g-4">
+            @forelse ($trendingMovies as $movie)
+                <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="card movie-card h-100 border-0 shadow-sm position-relative overflow-hidden">
+                        <a href="{{ route('movies.show', $movie->id) }}">
+                            <img src="{{ $movie->poster ? asset($movie->poster) : asset('img/1.jpg') }}" class="card-img-top movie-poster" alt="{{ $movie->title }}">
+                        </a>
+                        <a href="{{ route('movies.show', $movie->id) }}" class="btn btn-light btn-trailer position-absolute top-0 end-0 m-2 rounded-circle shadow" title="Xem trailer/chi tiết">
+                            <i class="fa fa-play text-danger"></i>
+                        </a>
+                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                            <h5 class="card-title mb-1 fw-bold">
+                                <a class="text-danger text-decoration-none" href="{{ route('movies.show', $movie->id) }}">
                                     {{ Str::limit($movie->title, 20) }}
                                 </a>
                             </h5>
-                            <p class="mb-2">{{ Str::limit($movie->description ?? 'Không có mô tả', 50) }}</p>
-                            <span class="col_red">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </span>
-                            <p class="mb-0">{{ $movie->genre ?? 'Thể loại không xác định' }}</p>
+                            <p class="card-text small mb-2" style="min-height:38px">{{ Str::limit($movie->description ?? 'Không có mô tả', 50) }}</p>
+                            <div class="mb-2">
+                                <span class="text-warning">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </span>
+                            </div>
+                            <span class="badge bg-secondary">{{ $movie->genre ?? 'Thể loại không xác định' }}</span>
                         </div>
                     </div>
-                @empty
-                    <p class="text-center">Không có phim nào để hiển thị.</p>
-                @endforelse
-            </div>
+                </div>
+            @empty
+                <p class="text-center">Không có phim nào để hiển thị.</p>
+            @endforelse
         </div>
-        
-
-
+    </div>
 </section>
+
+<style>
+    .movie-card {
+        border-radius: 18px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        background: #23243a;
+        color: #fff;
+    }
+    .movie-card:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 8px 32px 0 rgba(233,69,96,0.18);
+        z-index: 2;
+    }
+    .movie-poster {
+        border-radius: 18px 18px 0 0;
+        height: 320px;
+        object-fit: cover;
+        background: #111;
+    }
+    .btn-trailer {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.92;
+        transition: background 0.2s, transform 0.2s;
+    }
+    .btn-trailer:hover {
+        background: #e94560;
+        color: #fff;
+        transform: scale(1.15) rotate(-8deg);
+    }
+    .card-title a {
+        transition: color 0.2s;
+    }
+    .card-title a:hover {
+        color: #e94560 !important;
+    }
+    .badge.bg-secondary {
+        background: #2d2e4a !important;
+        color: #fff;
+        font-size: 0.95em;
+        border-radius: 8px;
+        padding: 0.5em 1em;
+    }
+    @media (max-width: 768px) {
+        .movie-poster {
+            height: 200px;
+        }
+    }
+    .btn, .btn-danger, .btn-light, .btn-secondary {
+        border-radius: 999px !important;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 12px 0 rgba(233,69,96,0.08);
+        transition: background 0.2s, color 0.2s, transform 0.2s;
+    }
+    .btn-danger:hover, .btn-light:hover, .btn-secondary:hover {
+        background: #e94560 !important;
+        color: #fff !important;
+        transform: scale(1.07);
+    }
+</style>
 
 @endsection

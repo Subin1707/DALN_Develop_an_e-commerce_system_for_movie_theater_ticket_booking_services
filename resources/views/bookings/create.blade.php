@@ -89,7 +89,7 @@
     </div>
 
     <div class="text-center">
-        <button type="submit" class="btn btn-primary px-4">
+        <button type="submit" class="btn btn-primary px-4" id="continuePaymentBtn">
             Tiếp tục thanh toán →
         </button>
     </div>
@@ -177,9 +177,11 @@ const seatInput = document.getElementById('seats');
 const ticketCount = document.getElementById('ticketCount');
 const totalPrice = document.getElementById('totalPrice');
 const form = document.getElementById('bookingForm');
+const continueBtn = document.getElementById('continuePaymentBtn');
 
 const pricePerTicket = Number(form.dataset.price);
 let selectedSeats = [];
+let submitting = false;
 
 seats.forEach(seat => {
     seat.addEventListener('click', function () {
@@ -204,9 +206,21 @@ seats.forEach(seat => {
 });
 
 form.addEventListener('submit', function (e) {
+    if (submitting) {
+        e.preventDefault();
+        return;
+    }
+
     if (selectedSeats.length === 0) {
         e.preventDefault();
         alert('⚠️ Vui lòng chọn ít nhất 1 ghế');
+        return;
+    }
+
+    submitting = true;
+    if (continueBtn) {
+        continueBtn.disabled = true;
+        continueBtn.innerText = 'Dang xu ly...';
     }
 });
 </script>

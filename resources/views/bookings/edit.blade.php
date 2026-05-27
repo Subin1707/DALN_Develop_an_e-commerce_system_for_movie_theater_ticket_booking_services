@@ -58,6 +58,9 @@
         <option value="transfer" {{ $booking->payment_method === 'transfer' ? 'selected' : '' }}>
             🏦 Chuyển khoản
         </option>
+        <option value="online" {{ $booking->payment_method === 'online' ? 'selected' : '' }}>
+            Online
+        </option>
     </select>
 </div>
 

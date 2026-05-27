@@ -14,7 +14,7 @@
     </p>
 
     {{-- ================= QR CODE ================= --}}
-    @if($booking->status === 'confirmed' && !$booking->confirmed_at)
+    @if($booking->status === 'confirmed' && !$booking->checked_in_at && now()->lt($booking->showtime->start_time))
 
         <div class="my-4">
             {!! QrCode::size(240)->generate(

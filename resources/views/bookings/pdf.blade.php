@@ -115,12 +115,14 @@
         </div>
 
     {{-- CÒN HIỆU LỰC → HIỆN QR --}}
-    @else
+    @elseif($canShowQr)
         <div class="qr">
-            {!! QrCode::size(150)->generate(
-                route('staff.bookings.scan', $booking->booking_code)
-            ) !!}
+            {!! $qr !!}
             <p>Quét mã QR khi vào rạp</p>
+        </div>
+    @else
+        <div class="used used-gray">
+            CHUA XAC NHAN THANH TOAN
         </div>
     @endif
 

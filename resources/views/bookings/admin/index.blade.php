@@ -42,7 +42,13 @@
             <td>{{ $booking->seats }}</td>
             <td>{{ number_format($booking->total_price) }} ₫</td>
             <td>
-                {{ $booking->payment_method === 'cash' ? '💵 Tiền mặt' : '🏦 Chuyển khoản' }}
+                @if($booking->payment_method === 'cash')
+                    💵 Tiền mặt
+                @elseif($booking->payment_method === 'online')
+                    Online
+                @else
+                    🏦 Chuyển khoản
+                @endif
             </td>
             <td>
                 <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : 'warning' }}">
