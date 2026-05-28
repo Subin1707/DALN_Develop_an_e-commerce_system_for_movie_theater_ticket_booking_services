@@ -74,21 +74,37 @@
                 </div>
             </div>
 
-            {{-- Đặt vé nhanh --}}
+            {{-- Đặt vé nhanh / quản lý booking --}}
             <div class="col-md-4 mb-4">
                 <div class="p-4 bg-black rounded-4 border border-danger shadow-lg h-100 hover-shadow">
                     <h3 class="text-danger mb-3">
-                        🎟️ Đặt Vé Nhanh
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <i class="fa fa-ticket me-1"></i> Quản Lý Booking
+                            @else
+                                <i class="fa fa-ticket me-1"></i> Đặt Vé Nhanh
+                            @endif
+                        @else
+                            <i class="fa fa-ticket me-1"></i> Đặt Vé Nhanh
+                        @endauth
                     </h3>
                     <p class="text-secondary">
-                        Chọn rạp, suất chiếu và chỗ ngồi yêu thích chỉ trong vài bước.
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                Theo dõi, chỉnh sửa và quản lý trạng thái các booking trong hệ thống.
+                            @else
+                                Chọn rạp, suất chiếu và chỗ ngồi yêu thích chỉ trong vài bước.
+                            @endif
+                        @else
+                            Chọn rạp, suất chiếu và chỗ ngồi yêu thích chỉ trong vài bước.
+                        @endauth
                     </p>
 
                     @auth
                         @if(auth()->user()->role === 'admin')
                             <a href="{{ route('admin.bookings.index') }}" 
                                class="btn btn-danger rounded-pill fw-semibold mt-3 px-4 py-2">
-                               Quản lý đặt vé
+                               Xem booking
                             </a>
                         @else
                             <a href="{{ route('bookings.choose') }}" 

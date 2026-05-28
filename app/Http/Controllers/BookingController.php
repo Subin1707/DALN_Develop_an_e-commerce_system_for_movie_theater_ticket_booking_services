@@ -69,7 +69,12 @@ class BookingController extends Controller
     public function create(Showtime $showtime)
     {
         abort_if(in_array(Auth::user()->role, ['admin', 'staff']), 403);
-        abort_if($showtime->start_time < now(), 403);
+
+        if ($showtime->start_time < now()) {
+            return redirect()
+                ->route('bookings.choose')
+                ->with('error', 'Suất chiếu này đã qua giờ, vui lòng chọn suất chiếu khác.');
+        }
 
         $occupiedSeats = Booking::where('showtime_id', $showtime->id)
             ->whereIn('status', ['pending', 'confirmed'])
@@ -94,7 +99,11 @@ class BookingController extends Controller
         $showtime = Showtime::with(['movie', 'room'])
             ->findOrFail($request->showtime_id);
 
-        abort_if($showtime->start_time < now(), 403);
+        if ($showtime->start_time < now()) {
+            return redirect()
+                ->route('bookings.choose')
+                ->with('error', 'Suất chiếu này đã qua giờ, vui lòng chọn suất chiếu khác.');
+        }
 
         $seats = $this->normalizeSeats($request->seats);
         abort_if(empty($seats), 422, 'Vui long chon it nhat 1 ghe.');
@@ -397,6 +406,115 @@ class BookingController extends Controller
         }
 
         return view('bookings.show', compact('booking'));
+    }
+
+    public function edit(Booking $booking)
+    {
+        abort_unless(in_array(Auth::user()->role, ['admin', 'staff']), 403);
+
+        $booking->load(['showtime.movie', 'showtime.room', 'user']);
+        $showtimes = Showtime::with(['movie', 'room'])
+            ->where('start_time', '>=', now()->subDay())
+            ->orderBy('start_time')
+            ->get();
+
+        return view('bookings.edit', compact('booking', 'showtimes'));
+    }
+
+    public function update(Request $request, Booking $booking)
+    {
+        abort_unless(in_array(Auth::user()->role, ['admin', 'staff']), 403);
+
+        $data = $request->validate([
+            'showtime_id' => 'required|exists:showtimes,id',
+            'seats' => 'required|string|max:255',
+            'total_price' => 'required|integer|min:0',
+            'payment_method' => 'required|in:cash,transfer,online',
+            'status' => 'required|in:pending,confirmed,cancelled',
+        ]);
+
+        $selectedSeats = $this->normalizeSeats($data['seats']);
+
+        if (empty($selectedSeats)) {
+            return back()
+                ->withInput()
+                ->withErrors(['seats' => 'Vui lòng nhập ít nhất một ghế.']);
+        }
+
+        $result = DB::transaction(function () use ($booking, $data, $selectedSeats) {
+            $showtime = Showtime::with('room')
+                ->whereKey($data['showtime_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $invalidSeats = $this->invalidSeats($showtime, $selectedSeats);
+            if (!empty($invalidSeats)) {
+                return ['invalidSeats' => $invalidSeats];
+            }
+
+            $occupiedSeats = Booking::where('showtime_id', $showtime->id)
+                ->where('id', '!=', $booking->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->lockForUpdate()
+                ->pluck('seats')
+                ->flatMap(fn ($seats) => explode(',', $seats))
+                ->map(fn ($seat) => strtoupper(trim($seat)))
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $duplicatedSeats = array_values(array_intersect($selectedSeats, $occupiedSeats));
+            if (!empty($duplicatedSeats) && in_array($data['status'], ['pending', 'confirmed'], true)) {
+                return ['duplicatedSeats' => $duplicatedSeats];
+            }
+
+            $booking->update([
+                'showtime_id' => $showtime->id,
+                'room_code' => $showtime->room->name,
+                'seats' => implode(',', $selectedSeats),
+                'total_price' => $data['total_price'],
+                'payment_method' => $data['payment_method'],
+                'status' => $data['status'],
+                'confirmed_at' => $data['status'] === 'confirmed'
+                    ? ($booking->confirmed_at ?? now())
+                    : null,
+                'confirmed_by' => $data['status'] === 'confirmed'
+                    ? ($booking->confirmed_by ?? Auth::id())
+                    : null,
+            ]);
+
+            return ['booking' => $booking];
+        });
+
+        if (!empty($result['invalidSeats'])) {
+            return back()
+                ->withInput()
+                ->withErrors(['seats' => 'Ghế không tồn tại trong phòng: ' . implode(', ', $result['invalidSeats'])]);
+        }
+
+        if (!empty($result['duplicatedSeats'])) {
+            return back()
+                ->withInput()
+                ->withErrors(['seats' => 'Ghế đã được đặt: ' . implode(', ', $result['duplicatedSeats'])]);
+        }
+
+        $route = Auth::user()->role === 'admin' ? 'admin.bookings.show' : 'staff.bookings.show';
+
+        return redirect()
+            ->route($route, $booking)
+            ->with('success', 'Cập nhật booking thành công.');
+    }
+
+    public function destroy(Booking $booking)
+    {
+        abort_unless(Auth::user()->role === 'admin', 403);
+
+        $booking->delete();
+
+        return redirect()
+            ->route('admin.bookings.index')
+            ->with('success', 'Đã xóa booking.');
     }
 
     /* ===================== QR CODE (USER) ===================== */

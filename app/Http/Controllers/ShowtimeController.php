@@ -74,7 +74,10 @@ class ShowtimeController extends Controller
 
     public function show(Showtime $showtime)
     {
-        $canBook = Auth::check() && Auth::user()->role === 'user';
+        $canBook = Auth::check()
+            && Auth::user()->role === 'user'
+            && $showtime->start_time >= now();
+
         return view('showtimes.show', compact('showtime', 'canBook'));
     }
 

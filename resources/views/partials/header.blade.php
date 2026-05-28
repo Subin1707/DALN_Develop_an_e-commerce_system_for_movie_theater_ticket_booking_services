@@ -34,7 +34,6 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.theaters.index') }}">Rạp</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.rooms.index') }}">Phòng</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.showtimes.index') }}">Suất chiếu</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ route('admin.bookings.index') }}">Đặt vé</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('admin.staffs.index') }}">Nhân viên</a></li>
                         @else
                             <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Trang chủ</a></li>

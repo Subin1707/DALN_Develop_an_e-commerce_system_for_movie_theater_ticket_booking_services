@@ -125,7 +125,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::get('/dashboard/revenue', [DashboardController::class, 'revenue'])
+        Route::get('/dashboard/revenue', [DashboardController::class, 'revenueChart'])
             ->name('dashboard.revenue');
 
         Route::resource('movies', MovieController::class);
