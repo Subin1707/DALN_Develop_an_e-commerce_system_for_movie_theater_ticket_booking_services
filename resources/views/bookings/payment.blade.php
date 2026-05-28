@@ -18,7 +18,7 @@
 
         {{-- ⏳ ĐẾM NGƯỢC GIỮ GHẾ --}}
         <div class="alert alert-danger py-2 mt-2" id="countdownBox">
-            ⏳ Thời gian giữ ghế: <span id="countdown">60</span> giây
+            ⏳ Thời gian giữ ghế: <span id="countdown">300</span> giây
         </div>
     </div>
 </div>
@@ -64,6 +64,16 @@
 </div>
 
 {{-- 🔥 FORM THANH TOÁN --}}
+@if($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <form id="paymentForm" action="{{ route('bookings.store') }}" method="POST">
     @csrf
 
@@ -106,17 +116,21 @@
                        value="online"
                        id="pay_online">
                 <label class="form-check-label" for="pay_online">
-                    Thanh toan online
+                    Thanh toan online qua MoMo
                 </label>
             </div>
 
             <div id="onlinePaymentBox" class="alert alert-info mt-3 d-none">
                 <strong>Thanh toan online:</strong>
-                Quet ma QR ngan hang hoac vi dien tu, sau do bam nut xac nhan. Don demo se duoc xac nhan ngay.
+                He thong se chuyen sang cong thanh toan MoMo. Ve chi duoc xac nhan sau khi MoMo tra ve giao dich thanh cong.
                 <div class="mt-2 small">
-                    Noi dung chuyen khoan:
-                    <strong>QHCINEMA-{{ $showtime->id }}-{{ implode('', $seatArray) }}</strong>
+                    Su dung cong MoMo UAT gia lap noi bo: tao request, ky HMAC, IPN va return nhu luong MoMo.
                 </div>
+            </div>
+
+            <div id="transferPaymentBox" class="alert alert-warning mt-3 d-none">
+                <strong>Chuyen khoan:</strong>
+                He thong se tao ve cho thanh toan va hien man hinh demo thong tin chuyen khoan. Ve chi hoan tat sau khi bam xac nhan chuyen khoan thanh cong.
             </div>
         </div>
     </div>
@@ -134,7 +148,7 @@
 
 {{-- ================== SCRIPT ĐẾM NGƯỢC ================== --}}
 <script>
-    let timeLeft = 60;
+    let timeLeft = 300;
     const countdownEl = document.getElementById('countdown');
 
     const timer = setInterval(() => {
@@ -155,12 +169,16 @@
     const form = document.getElementById('paymentForm');
     const submitBtn = document.getElementById('submitPaymentBtn');
     const onlineBox = document.getElementById('onlinePaymentBox');
+    const transferBox = document.getElementById('transferPaymentBox');
     const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
 
     paymentMethods.forEach((input) => {
         input.addEventListener('change', () => {
             if (onlineBox) {
                 onlineBox.classList.toggle('d-none', input.value !== 'online' || !input.checked);
+            }
+            if (transferBox) {
+                transferBox.classList.toggle('d-none', input.value !== 'transfer' || !input.checked);
             }
         });
     });

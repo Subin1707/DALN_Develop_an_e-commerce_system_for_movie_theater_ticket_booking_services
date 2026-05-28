@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'momo' => [
+        'endpoint' => env('MOMO_ENDPOINT'),
+        'partner_code' => env('MOMO_PARTNER_CODE', 'MOMO_UAT_DEMO'),
+        'access_key' => env('MOMO_ACCESS_KEY', 'MOMO_UAT_ACCESS'),
+        'secret_key' => env('MOMO_SECRET_KEY', 'MOMO_UAT_SECRET'),
+        'lang' => env('MOMO_LANG', 'vi'),
+    ],
+
 ];

@@ -117,7 +117,7 @@
     {{-- CÒN HIỆU LỰC → HIỆN QR --}}
     @elseif($canShowQr)
         <div class="qr">
-            {!! $qr !!}
+            <img src="{{ $qrDataUri }}" width="180" height="180" alt="QR Check-in">
             <p>Quét mã QR khi vào rạp</p>
         </div>
     @else

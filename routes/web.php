@@ -33,6 +33,18 @@ Route::get('/showtimes/{showtime}', [ShowtimeController::class, 'show'])->name('
 
 Route::view('/about', 'about')->name('aboutme');
 
+Route::post('/payment/momo-ipn', [BookingController::class, 'momoIpn'])
+    ->name('payments.momo.ipn');
+
+Route::post('/momo-uat/create', [BookingController::class, 'momoUatCreate'])
+    ->name('momo.uat.create');
+
+Route::get('/momo-uat/pay', [BookingController::class, 'momoUatPay'])
+    ->name('momo.uat.pay');
+
+Route::post('/momo-uat/complete', [BookingController::class, 'momoUatComplete'])
+    ->name('momo.uat.complete');
+
 /*
 |--------------------------------------------------------------------------
 | AUTH USER
@@ -63,8 +75,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/bookings/payment/preview', [BookingController::class, 'paymentPreview'])
         ->name('bookings.payment.preview');
 
+    Route::get('/bookings/payment/preview', [BookingController::class, 'paymentPreviewResume']);
+
     Route::post('/bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
+
+    Route::get('/bookings/payment/momo-return', [BookingController::class, 'momoReturn'])
+        ->name('bookings.payment.momo.return');
 
     // USER HISTORY
     Route::get('/my-bookings', [BookingController::class, 'history'])
@@ -74,6 +91,15 @@ Route::middleware(['auth'])->group(function () {
         ->name('bookings.show');
 
     // 🔲 QR CODE VÉ (USER XEM)
+    Route::get('/my-bookings/{booking}/pay-online', [BookingController::class, 'retryOnlinePayment'])
+        ->name('bookings.online.retry');
+
+    Route::get('/my-bookings/{booking}/bank-transfer', [BookingController::class, 'showBankTransferDemo'])
+        ->name('bookings.transfer.demo');
+
+    Route::post('/my-bookings/{booking}/bank-transfer', [BookingController::class, 'completeBankTransferDemo'])
+        ->name('bookings.transfer.complete');
+
     Route::get('/my-bookings/{booking}/qr', [BookingController::class, 'qr'])
         ->name('bookings.qr');
 

@@ -111,6 +111,166 @@ margin-bottom:10px;
 background-color: #de1002; 
  }
 
+/*********************modern tables****************/
+.cinema-table-card {
+background: #0f172a;
+border: 1px solid rgba(255,255,255,.08);
+border-radius: 8px;
+overflow: hidden;
+box-shadow: 0 18px 45px rgba(0,0,0,.28);
+}
+.cinema-table-toolbar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+padding: 16px;
+border-bottom: 1px solid rgba(255,255,255,.08);
+background: linear-gradient(90deg, rgba(30,41,59,.94), rgba(15,23,42,.94));
+}
+.cinema-table-toolbar h5 {
+margin: 0;
+color: #fff;
+}
+.cinema-table {
+margin-bottom: 0;
+color: #e5e7eb;
+}
+.cinema-table thead th {
+background: #111827;
+color: #f8fafc;
+border: 0;
+border-bottom: 1px solid rgba(255,255,255,.12);
+padding: 14px 16px;
+font-size: .82rem;
+font-weight: 800;
+letter-spacing: .4px;
+text-transform: uppercase;
+white-space: nowrap;
+}
+.cinema-table tbody td {
+padding: 14px 16px;
+border-color: rgba(255,255,255,.07);
+vertical-align: middle;
+}
+.cinema-table tbody tr {
+background: #0f172a;
+transition: background .18s ease, transform .18s ease;
+}
+.cinema-table tbody tr:nth-child(even) {
+background: #111827;
+}
+.cinema-table tbody tr:hover {
+background: rgba(233,69,96,.12);
+}
+.cinema-table .table-title {
+color: #fff;
+font-weight: 800;
+}
+.cinema-table .table-muted {
+color: #94a3b8;
+font-size: .92rem;
+}
+.cinema-table .table-money {
+color: #facc15;
+font-weight: 900;
+white-space: nowrap;
+}
+.cinema-table .table-code {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 5px 9px;
+border-radius: 999px;
+background: rgba(255,255,255,.08);
+color: #e5e7eb;
+font-weight: 800;
+}
+.cinema-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 6px 10px;
+border-radius: 999px;
+font-weight: 900;
+font-size: .8rem;
+line-height: 1;
+white-space: nowrap;
+}
+.cinema-badge.success {
+background: rgba(34,197,94,.16);
+color: #86efac;
+}
+.cinema-badge.warning {
+background: rgba(250,204,21,.16);
+color: #fde68a;
+}
+.cinema-badge.danger {
+background: rgba(248,113,113,.16);
+color: #fca5a5;
+}
+.cinema-badge.info {
+background: rgba(56,189,248,.16);
+color: #7dd3fc;
+}
+.cinema-badge.neutral {
+background: rgba(148,163,184,.16);
+color: #cbd5e1;
+}
+.cinema-actions {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+flex-wrap: wrap;
+}
+.cinema-action-btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+min-height: 32px;
+padding: 6px 10px;
+border-radius: 7px;
+font-size: .86rem;
+font-weight: 900;
+}
+.cinema-empty-row {
+padding: 32px 16px!important;
+text-align: center;
+color: #94a3b8!important;
+}
+.cinema-search {
+border-radius: 8px;
+overflow: hidden;
+border: 1px solid rgba(255,255,255,.1);
+background: #0f172a;
+}
+.cinema-search .form-control {
+border: 0;
+background: transparent!important;
+color: #fff!important;
+}
+.cinema-search .form-control:focus {
+box-shadow: none;
+}
+.cinema-search .btn {
+border: 0;
+font-weight: 900;
+}
+@media (max-width: 767.98px) {
+.cinema-table-toolbar {
+align-items: stretch;
+flex-direction: column;
+}
+.cinema-actions {
+display: grid;
+grid-template-columns: 1fr;
+}
+.cinema-action-btn {
+width: 100%;
+}
+}
+
 /*********************header****************/
 #top{
 background-color: #191a1d;

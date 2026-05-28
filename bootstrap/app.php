@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'staff' => StaffMiddleware::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'payment/momo-ipn',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
